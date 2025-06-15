@@ -301,7 +301,7 @@ class Ball {
     this.isPowerHit = false; // 0x68  // initialized to 0 i.e. false
   }
 }
-
+const modenum = 0; // 노서브 룰 적용 시 1로 바꿉니다..(음주)
 /**
  * FUN_00403dd0
  * This is the Pikachu Volleyball physics engine!
@@ -376,16 +376,19 @@ function physicsEngine(player1, player2, ball, userInputArray) {
           player.state
         );
         player.isCollisionWithBallHappened = true;
+        CollisionCount = 1; // (음주)
       }
     } else {
       player.isCollisionWithBallHappened = false;
     }
-
-    // did the serve end with a down hit?
-    if (ball.isDownPowerhit && ball.isServeState && !ball.expectedNetCollision &&
-      ((ball.expectedLandingPointX>=216 && !ball.isPlayer2Serve)
-      || (ball.expectedLandingPointX<216 && ball.isPlayer2Serve))) {
-      ball.endByDownServe = true;
+    
+    if (modenum == 0) { // (음주)
+      // did the serve end with a down hit?
+      if (ball.isDownPowerhit && ball.isServeState && !ball.expectedNetCollision &&
+        ((ball.expectedLandingPointX>=216 && !ball.isPlayer2Serve)
+        || (ball.expectedLandingPointX<216 && ball.isPlayer2Serve))) {
+        ball.endByDownServe = true;
+      }
     }
   }
 
@@ -523,7 +526,7 @@ function processCollisionBetweenBallAndWorldAndSetBallPosition(ball) {
 
   return false;
 }
-
+let CollisionCount = 0; // 추가한 변수(음주)
 /**
  * FUN_00401fc0
  * Process player movement according to user input and set player position
@@ -616,9 +619,9 @@ function processPlayerMovementAndSetPlayerPosition(
       player.state = 0;
     }
   }
-
-  if (userInput.powerHit === 1) {
-    if (player.state === 1) {
+  
+  if (userInput.powerHit === 1) { 
+    if (player.state === 1 && (this.isServeState == false || CollisionCount == 0) && modenum == 1) { // 서브중이 아니거나 CollisionCount가 0일 때 powerhit 성공(음주)
       // if player is jumping..
       // then player do power hit!
       player.delayBeforeNextFrame = 5;
@@ -641,6 +644,7 @@ function processPlayerMovementAndSetPlayerPosition(
       player.sound.chu = true;
     }
   }
+  CollisionCount = 1; // (음주)
 
   if (player.state === 1) {
     player.frameNumber = (player.frameNumber + 1) % 3;
@@ -701,6 +705,7 @@ function processGameEndFrameFor(player) {
     }
   }
 }
+
 
 /**
  * FUN_004030a0
