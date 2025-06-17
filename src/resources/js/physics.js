@@ -47,10 +47,22 @@ const BALL_TOUCHING_GROUND_Y_COORD = 252;
 const NET_PILLAR_HALF_WIDTH = 25;
 /** @constant @type {number} net pillar top's top side y coordinate */
 const NET_PILLAR_TOP_TOP_Y_COORD = 176;
-/** @constant @type {number} num of adapted rule */
-const Modenum = 1; // Pgo rule: 1 / noserve rule: 2
+
+// const Modenum = 1; // Pgo rule: 1 / noserve rule: 2
 /** @constant @type {number} net pillar top's bottom side y coordinate (this value is on this physics engine only) */
 const NET_PILLAR_TOP_BOTTOM_Y_COORD = 192;
+
+// If you wanna switch rule by option ui, activate this.
+const PgoRuleBtn = document.getElementById('Pgo-rule-btn'); // physics.js manages the rule button, so this code is useless now
+const noserveRuleBtn = document.getElementById('noserve-rule-btn');
+// /** @constant @type {number} num of adapted rule */
+let Modenum = 1;
+PgoRuleBtn.addEventListener('click', () => {
+  Modenum = 1;
+});
+noserveRuleBtn.addEventListener('click', () => {
+  Modenum = 2;
+});
 
 export default Modenum;
 

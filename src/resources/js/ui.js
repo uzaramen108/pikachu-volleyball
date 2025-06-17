@@ -7,7 +7,7 @@ import { localStorageWrapper } from './utils/local_storage_wrapper.js';
 
 /** @typedef {import('./pikavolley.js').PikachuVolleyball} PikachuVolleyball */
 /** @typedef {import('@pixi/ticker').Ticker} Ticker */
-/** @typedef {{graphic?: string, bgm?: string, sfx?: string, speed?: string, winningScore?: string}} Options */
+/** @typedef {{graphic?: string, bgm?: string, sfx?: string, speed?: string, winningScore?: string, rule?: string}} Options */
 
 /**
  * Enum for "game paused by what?".
@@ -120,6 +120,14 @@ export function setUpUI(pikaVolley, ticker) {
         pikaVolley.winningScore = 15;
         break;
     }
+    switch (options.rule) { // physics.js manages the rule button, so this code is useless now
+      case 'Pgo':
+        pikaVolley.ruleNum = 1;
+        break;
+      case 'medium':
+        pikaVolley.normalFPS = 2;
+        break;
+    }
   };
 
   /**
@@ -143,7 +151,12 @@ export function setUpUI(pikaVolley, ticker) {
     if (options.winningScore) {
       localStorageWrapper.set('pv-offline-winningScore', options.winningScore);
     }
+    if (options.rule) {
+      localStorageWrapper.set('pv-offline-rule', options.speed);
+    }
   };
+
+  
 
   /**
    * Load options
@@ -155,6 +168,7 @@ export function setUpUI(pikaVolley, ticker) {
     sfx: localStorageWrapper.get('pv-offline-sfx'),
     speed: localStorageWrapper.get('pv-offline-speed'),
     winningScore: localStorageWrapper.get('pv-offline-winningScore'),
+    rule: localStorageWrapper.get('pv-offline-rule'),
   });
 
   /**
@@ -282,6 +296,17 @@ function setUpBtns(pikaVolley, applyAndSaveOptions) {
   fastSpeedBtn.addEventListener('click', () => {
     applyAndSaveOptions({ speed: 'fast' });
   });
+
+  const PgoRuleBtn = document.getElementById('Pgo-rule-btn'); // physics.js manages the rule button, so this code is useless now
+  const noserveRuleBtn = document.getElementById('noserve-rule-btn');
+  
+  PgoRuleBtn.addEventListener('click', () => {
+    applyAndSaveOptions({ rule : 'Pgo' });
+  });
+  noserveRuleBtn.addEventListener('click', () => {
+    applyAndSaveOptions({ rule: 'noserve' });
+  });
+
 
   const winningScore5Btn = document.getElementById('winning-score-5-btn');
   const winningScore10Btn = document.getElementById('winning-score-10-btn');
@@ -474,6 +499,7 @@ function setUpBtns(pikaVolley, applyAndSaveOptions) {
       sfx: 'stereo',
       speed: 'medium',
       winningScore: '15',
+      rule: 'noserve',
     };
     applyAndSaveOptions(defaultOptions);
   });
@@ -578,6 +604,20 @@ function setSelectedOptionsBtn(options) {
         break;
     }
   }
+  if (options.rule) { // physics.js manages the rule button, so this code is useless now
+    const PgoRuleBtn = document.getElementById('Pgo-rule-btn');
+    const noserveRuleBtn = document.getElementById('noserve-rule-btn');
+    switch (options.rule) {
+      case 'Pgo':
+        PgoRuleBtn.classList.add('selected');
+        noserveRuleBtn.classList.remove('selected');
+        break;
+      case 'noserve':
+        PgoRuleBtn.classList.remove('selected');
+        noserveRuleBtn.classList.add('selected');
+        break;
+    }
+  }
 }
 
 /**
@@ -636,6 +676,11 @@ function setUpToShowDropdownsAndSubmenus(pikaVolley) {
     .addEventListener('mouseover', () => {
       showSubmenu('practice-mode-submenu-btn', 'practice-mode-submenu');
     });
+  document // physics.js manages the rule button, so this code is useless now
+    .getElementById('rule-submenu-btn')
+    .addEventListener('mouseover', () => {
+      showSubmenu('rule-submenu-btn', 'rule-submenu');
+    });
   document
     .getElementById('reset-to-default-btn')
     .addEventListener('mouseover', () => {
@@ -663,6 +708,9 @@ function setUpToShowDropdownsAndSubmenus(pikaVolley) {
     .addEventListener('click', () => {
       showSubmenu('practice-mode-submenu-btn', 'practice-mode-submenu');
     });
+  document.getElementById('rule-submenu-btn').addEventListener('click', () => { // physics.js manages the rule button, so this code is useless now
+    showSubmenu('rule-submenu-btn', 'rule-submenu');
+  });
   document
     .getElementById('reset-to-default-btn')
     .addEventListener('click', () => {
