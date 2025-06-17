@@ -437,13 +437,13 @@ export class PikachuVolleyball {
           this.scores[1] += 1;
         }
       } else { // game ended normally
-          if (this.physics.ball.punchEffectX < GROUND_HALF_WIDTH) {
-            this.isPlayer2Serve = true;
-            this.scores[1] += 1;
-          } else {
-            this.isPlayer2Serve = false;
-            this.scores[0] += 1;
-          }
+        if (this.physics.ball.punchEffectX < GROUND_HALF_WIDTH) {
+          this.isPlayer2Serve = true;
+          this.scores[1] += 1;
+        } else {
+          this.isPlayer2Serve = false;
+          this.scores[0] += 1;
+        }
       }
 
       if (this.scores[0] >= this.serveLimitScore) {

@@ -395,8 +395,8 @@ function physicsEngine(player1, player2, ball, userInputArray, modeNum = 1) {
     if (modeNum == 1) {
     // did the serve end with a down hit?
       if (ball.isDownPowerhit && ball.isServeState && !ball.expectedNetCollision &&
-        ((ball.expectedLandingPointX>=216 && !ball.isPlayer2Serve)
-        || (ball.expectedLandingPointX<216 && ball.isPlayer2Serve))) {
+        ((ball.expectedLandingPointX>=GROUND_HALF_WIDTH && !ball.isPlayer2Serve)
+        || (ball.expectedLandingPointX<GROUND_HALF_WIDTH && ball.isPlayer2Serve))) {
         ball.endByDownServe = true;
       }
     }
