@@ -143,10 +143,9 @@ function setUpInitialUI() {
  */
 function setup() {
   const pikaVolley = new PikachuVolleyball(stage, loader.resources);
-  setUpUI(pikaVolley, ticker);  
+  setUpUI(pikaVolley, ticker);
   start(pikaVolley);
 }
-
 
 /**
  * Start the game.

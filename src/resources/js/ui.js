@@ -120,12 +120,14 @@ export function setUpUI(pikaVolley, ticker) {
         pikaVolley.winningScore = 15;
         break;
     }
-    switch (options.rule) { // physics.js manages the rule button, so this code is useless now
+    switch (options.rule) {
       case 'Pgo':
-        pikaVolley.ruleNum = 1;
+        pikaVolley.physics.modeNum = 1;
+        pikaVolley.changeDownBoardVisibility(true);
         break;
-      case 'medium':
-        pikaVolley.normalFPS = 2;
+      case 'noserve':
+        pikaVolley.physics.modeNum = 2;
+        pikaVolley.changeDownBoardVisibility(false);
         break;
     }
   };
@@ -152,7 +154,7 @@ export function setUpUI(pikaVolley, ticker) {
       localStorageWrapper.set('pv-offline-winningScore', options.winningScore);
     }
     if (options.rule) {
-      localStorageWrapper.set('pv-offline-rule', options.speed);
+      localStorageWrapper.set('pv-offline-rule', options.rule);
     }
   };
 
@@ -297,16 +299,63 @@ function setUpBtns(pikaVolley, applyAndSaveOptions) {
     applyAndSaveOptions({ speed: 'fast' });
   });
 
-  const PgoRuleBtn = document.getElementById('Pgo-rule-btn'); // physics.js manages the rule button, so this code is useless now
+  const PgoRuleBtn = document.getElementById('Pgo-rule-btn');
   const noserveRuleBtn = document.getElementById('noserve-rule-btn');
-  
+  const noticeBox3 = document.getElementById('notice-box-3');
+  const noticeOKBtn3 = document.getElementById('notice-ok-btn-3');
+  function isGameStarted() {
+    return pikaVolley.state === pikaVolley.round ||
+      pikaVolley.state === pikaVolley.afterEndOfRound ||
+      pikaVolley.state === pikaVolley.beforeStartOfNextRound ||
+      pikaVolley.state === pikaVolley.beforeStartOfNewGame ||
+      pikaVolley.state === pikaVolley.startOfNewGame;
+  }
   PgoRuleBtn.addEventListener('click', () => {
+    if (PgoRuleBtn.classList.contains('selected')) {
+      return;
+    }
+    if (isGameStarted()) {
+      noticeBox3.classList.remove('hidden');
+      // @ts-ignore
+      gameDropdownBtn.disabled = true;
+      // @ts-ignore
+      optionsDropdownBtn.disabled = true;
+      // @ts-ignore
+      aboutBtn.disabled = true;
+      pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
+      return;
+    }
     applyAndSaveOptions({ rule : 'Pgo' });
   });
   noserveRuleBtn.addEventListener('click', () => {
+    if (noserveRuleBtn.classList.contains('selected')) {
+      return;
+    }
+    if (isGameStarted()) {
+      noticeBox3.classList.remove('hidden');
+      // @ts-ignore
+      gameDropdownBtn.disabled = true;
+      // @ts-ignore
+      optionsDropdownBtn.disabled = true;
+      // @ts-ignore
+      aboutBtn.disabled = true;
+      pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
+      return;
+    }
     applyAndSaveOptions({ rule: 'noserve' });
   });
-
+  noticeOKBtn3.addEventListener('click', () => {
+    if (!noticeBox3.classList.contains('hidden')) {
+      noticeBox3.classList.add('hidden');
+      // @ts-ignore
+      gameDropdownBtn.disabled = false;
+      // @ts-ignore
+      optionsDropdownBtn.disabled = false;
+      // @ts-ignore
+      aboutBtn.disabled = false;
+      pauseResumeManager.resume(pikaVolley, PauseResumePrecedence.messageBox);
+    }
+  });
 
   const winningScore5Btn = document.getElementById('winning-score-5-btn');
   const winningScore10Btn = document.getElementById('winning-score-10-btn');
@@ -497,7 +546,7 @@ function setUpBtns(pikaVolley, applyAndSaveOptions) {
       graphic: 'sharp',
       bgm: 'on',
       sfx: 'stereo',
-      speed: 'medium',
+      speed: 'fast',
       winningScore: '15',
       rule: 'noserve',
     };
@@ -604,7 +653,7 @@ function setSelectedOptionsBtn(options) {
         break;
     }
   }
-  if (options.rule) { // physics.js manages the rule button, so this code is useless now
+  if (options.rule) {
     const PgoRuleBtn = document.getElementById('Pgo-rule-btn');
     const noserveRuleBtn = document.getElementById('noserve-rule-btn');
     switch (options.rule) {
@@ -676,7 +725,7 @@ function setUpToShowDropdownsAndSubmenus(pikaVolley) {
     .addEventListener('mouseover', () => {
       showSubmenu('practice-mode-submenu-btn', 'practice-mode-submenu');
     });
-  document // physics.js manages the rule button, so this code is useless now
+  document
     .getElementById('rule-submenu-btn')
     .addEventListener('mouseover', () => {
       showSubmenu('rule-submenu-btn', 'rule-submenu');
