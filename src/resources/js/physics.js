@@ -518,7 +518,7 @@ function processCollisionBetweenBallAndWorldAndSetBallPosition(ball) {
     ball.sound.ballTouchesGround = true;
 
     if (ball.y < MaximumYForThunder && ball.yVelocity > MinimumSpeedForThunder && ball.isServeState == true) {
-      ball.endByThunder = true; // 이러면 서브상태가 아닌 플레이어가 득점.
+      ball.endByThunder = true; // If ended by thunder, the opposite player wins
     }
 
     ball.yVelocity = -ball.yVelocity;
