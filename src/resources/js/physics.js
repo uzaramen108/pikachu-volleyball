@@ -47,6 +47,10 @@ const BALL_TOUCHING_GROUND_Y_COORD = 252;
 const NET_PILLAR_HALF_WIDTH = 25;
 /** @constant @type {number} net pillar top's top side y coordinate */
 const NET_PILLAR_TOP_TOP_Y_COORD = 176;
+/** @constant @type {number} ball's y should be less than 212 for thunder */
+const MaximumYForThunder = 212;
+/** @constant @type {number} ball's y velocity should be larger than 42 for thunder */
+const MinimumSpeedForThunder = 42;
 /** @constant @type {number} net pillar top's bottom side y coordinate (this value is on this physics engine only) */
 const NET_PILLAR_TOP_BOTTOM_Y_COORD = 192;
 
@@ -77,6 +81,8 @@ export class PikaPhysics {
     this.player1 = new Player(false, isPlayer1Computer);
     this.player2 = new Player(true, isPlayer2Computer);
     this.ball = new Ball(false);
+
+    // Number of the rule
     this.modeNum = 1;
   }
 
@@ -282,6 +288,8 @@ class Ball {
     this.isServeState = true;
     /** @type {boolean} did the game end by down powerhitted serve? */
     this.endByDownServe = false;
+    /** @type {boolean} did the game end by Thunder serve? */
+    this.endByThunder = false;
     /** @type {boolean} was the down serve board updated? */
     this.updatedDownServe = false;
     /** @type {boolean} is the ball powerhitted down? */
@@ -426,6 +434,7 @@ function isCollisionBetweenBallAndPlayerHappened(ball, playerX, playerY) {
  * @param {Ball} ball
  * @return {boolean} Is ball touching ground?
  */
+
 function processCollisionBetweenBallAndWorldAndSetBallPosition(ball) {
   // This is not part of this function in the original assembly code.
   // In the original assembly code, it is processed in other function (FUN_00402ee0)
@@ -507,6 +516,10 @@ function processCollisionBetweenBallAndWorldAndSetBallPosition(ball) {
     // code function (ballpointer + 0x28 + 0x10)? omitted
     // the omitted two functions maybe do a part of sound playback role.
     ball.sound.ballTouchesGround = true;
+
+    if (ball.y < MaximumYForThunder && ball.yVelocity > MinimumSpeedForThunder && ball.isServeState == true) {
+      ball.endByThunder = true; // 이러면 서브상태가 아닌 플레이어가 득점.
+    }
 
     ball.yVelocity = -ball.yVelocity;
     ball.punchEffectX = ball.x;
