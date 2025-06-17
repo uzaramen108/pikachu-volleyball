@@ -47,8 +47,23 @@ const BALL_TOUCHING_GROUND_Y_COORD = 252;
 const NET_PILLAR_HALF_WIDTH = 25;
 /** @constant @type {number} net pillar top's top side y coordinate */
 const NET_PILLAR_TOP_TOP_Y_COORD = 176;
+// /** @constant @type {number} num of adapted rule */
+// const Modenum = 1; // Pgo rule: 1 / noserve rule: 2
 /** @constant @type {number} net pillar top's bottom side y coordinate (this value is on this physics engine only) */
 const NET_PILLAR_TOP_BOTTOM_Y_COORD = 192;
+
+// If you wanna switch rule by option ui, activate this.
+const PgoRuleBtn = document.getElementById('Pgo-rule-btn'); // physics.js manages the rule button, so this code is useless now
+const noserveRuleBtn = document.getElementById('noserve-rule-btn');
+let Modenum = 1;
+PgoRuleBtn.addEventListener('click', () => {
+  Modenum = 1;
+});
+noserveRuleBtn.addEventListener('click', () => {
+  Modenum = 2;
+});
+
+export default Modenum;
 
 /**
  * It's for to limit the looping number of the infinite loops.
@@ -172,6 +187,9 @@ class Player {
   initializeForNewRound() {
     /** @type {number} x coord */
     this.x = 36; // 0xA8 // initialized to 36 (player1) or 396 (player2)
+    if (Modenum == 2) {
+      collisionDefineNum = 0;
+    }
     if (this.isPlayer2) {
       this.x = GROUND_WIDTH - 36;
     }
@@ -301,7 +319,7 @@ class Ball {
     this.isPowerHit = false; // 0x68  // initialized to 0 i.e. false
   }
 }
-const modenum = 0; // 노서브 룰 적용 시 1로 바꿉니다..(음주)
+
 /**
  * FUN_00403dd0
  * This is the Pikachu Volleyball physics engine!
@@ -367,6 +385,9 @@ function physicsEngine(player1, player2, ball, userInputArray) {
         // when the ball touches the other player
         if (+ball.isPlayer2Serve!=i && ball.isServeState) {
           ball.isServeState = false;
+          if (Modenum == 2) {
+            collisionDefineNum = 0
+          }
         }
 
         processCollisionBetweenBallAndPlayer(
@@ -376,14 +397,16 @@ function physicsEngine(player1, player2, ball, userInputArray) {
           player.state
         );
         player.isCollisionWithBallHappened = true;
-        CollisionCount = 1; // (음주)
+        if (Modenum == 2 && ball.isServeState == true) {
+          collisionDefineNum = 1;
+        }
       }
     } else {
       player.isCollisionWithBallHappened = false;
     }
-    
-    if (modenum == 0) { // (음주)
-      // did the serve end with a down hit?
+
+    if (Modenum == 1) {
+    // did the serve end with a down hit?
       if (ball.isDownPowerhit && ball.isServeState && !ball.expectedNetCollision &&
         ((ball.expectedLandingPointX>=216 && !ball.isPlayer2Serve)
         || (ball.expectedLandingPointX<216 && ball.isPlayer2Serve))) {
@@ -448,7 +471,6 @@ function processCollisionBetweenBallAndWorldAndSetBallPosition(ball) {
   }
   ball.fineRotation = futureFineRotation;
   ball.rotation = (ball.fineRotation / 10) | 0; // integer division
-
   const futureBallX = ball.x + ball.xVelocity;
   /*
     If the center of ball would get out of left world bound or right world bound, bounce back.
@@ -526,7 +548,7 @@ function processCollisionBetweenBallAndWorldAndSetBallPosition(ball) {
 
   return false;
 }
-let CollisionCount = 0; // 추가한 변수(음주)
+
 /**
  * FUN_00401fc0
  * Process player movement according to user input and set player position
@@ -535,6 +557,8 @@ let CollisionCount = 0; // 추가한 변수(음주)
  * @param {Player} theOtherPlayer
  * @param {Ball} ball
  */
+let collisionDefineNum = 0; // A variable that tells whether there was a collision or not
+
 function processPlayerMovementAndSetPlayerPosition(
   player,
   userInput,
@@ -620,10 +644,11 @@ function processPlayerMovementAndSetPlayerPosition(
     }
   }
   
-  if (userInput.powerHit === 1) { 
-    if (player.state === 1 && (this.isServeState == false || CollisionCount == 0) && modenum == 1) { // 서브중이 아니거나 CollisionCount가 0일 때 powerhit 성공(음주)
+  if (userInput.powerHit === 1) {
+    if (player.state === 1 && (Modenum != 2 || collisionDefineNum != 1 || (player.isPlayer2 != true && ball.isPlayer2Serve == true) || (player.isPlayer2 == true && ball.isPlayer2Serve != true))) {
       // if player is jumping..
       // then player do power hit!
+      // Fixed an issue where 2p would not be powerhit immediately when 1p powerhit the ball
       player.delayBeforeNextFrame = 5;
       player.frameNumber = 0;
       player.state = 2;
@@ -644,7 +669,6 @@ function processPlayerMovementAndSetPlayerPosition(
       player.sound.chu = true;
     }
   }
-  CollisionCount = 1; // (음주)
 
   if (player.state === 1) {
     player.frameNumber = (player.frameNumber + 1) % 3;
@@ -705,7 +729,6 @@ function processGameEndFrameFor(player) {
     }
   }
 }
-
 
 /**
  * FUN_004030a0
@@ -780,7 +803,7 @@ function processCollisionBetweenBallAndPlayer(
     ball.isPowerHit = false;
   }
 
-  calculateExpectedLandingPointXFor(ball);
+  calculateExpectedLandingPointXFor(ball); 
 }
 
 /**

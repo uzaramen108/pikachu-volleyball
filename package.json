@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/uzaramen108/pikachu-volleyball.git"
+    "url": "git+https://github.com/ilesejin/pikachu-volleyball.git"
   },
   "keywords": [
     "game"
@@ -20,9 +20,9 @@
   "author": "Kyutae Lee",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/uzaramen108/pikachu-volleyball/issues"
+    "url": "https://github.com/ilesejin/pikachu-volleyball/issues"
   },
-  "homepage": "https://uzaramen108.github.io/pikachu-volleyball",
+  "homepage": "https://ilesejin.github.io/pikachu-volleyball",
   "devDependencies": {
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^11.0.0",
