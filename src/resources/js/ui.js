@@ -129,6 +129,10 @@ export function setUpUI(pikaVolley, ticker) {
         pikaVolley.physics.modeNum = 2;
         pikaVolley.changeDownBoardVisibility(false);
         break;
+      case 'DL36':
+        pikaVolley.physics.modeNum = 3;
+        pikaVolley.changeDownBoardVisibility(true);
+        break;
     }
   };
 
@@ -301,6 +305,7 @@ function setUpBtns(pikaVolley, applyAndSaveOptions) {
 
   const PgoRuleBtn = document.getElementById('Pgo-rule-btn');
   const noserveRuleBtn = document.getElementById('noserve-rule-btn');
+  const DL36RuleBtn = document.getElementById('Down-Limit-36-rule-btn');
   const noticeBox3 = document.getElementById('notice-box-3');
   const noticeOKBtn3 = document.getElementById('notice-ok-btn-3');
   function isGameStarted() {
@@ -343,6 +348,23 @@ function setUpBtns(pikaVolley, applyAndSaveOptions) {
       return;
     }
     applyAndSaveOptions({ rule: 'noserve' });
+  });
+  DL36RuleBtn.addEventListener('click', () => {
+    if (DL36RuleBtn.classList.contains('selected')) {
+      return;
+    }
+    if (isGameStarted()) {
+      noticeBox3.classList.remove('hidden');
+      // @ts-ignore
+      gameDropdownBtn.disabled = true;
+      // @ts-ignore
+      optionsDropdownBtn.disabled = true;
+      // @ts-ignore
+      aboutBtn.disabled = true;
+      pauseResumeManager.pause(pikaVolley, PauseResumePrecedence.messageBox);
+      return;
+    }
+    applyAndSaveOptions({ rule: 'DL36' });
   });
   noticeOKBtn3.addEventListener('click', () => {
     if (!noticeBox3.classList.contains('hidden')) {
@@ -656,14 +678,22 @@ function setSelectedOptionsBtn(options) {
   if (options.rule) {
     const PgoRuleBtn = document.getElementById('Pgo-rule-btn');
     const noserveRuleBtn = document.getElementById('noserve-rule-btn');
+    const DL36RuleBtn = document.getElementById('Down-Limit-36-rule-btn');
     switch (options.rule) {
       case 'Pgo':
         PgoRuleBtn.classList.add('selected');
         noserveRuleBtn.classList.remove('selected');
+        DL36RuleBtn.classList.remove('selected');
         break;
       case 'noserve':
         PgoRuleBtn.classList.remove('selected');
         noserveRuleBtn.classList.add('selected');
+        DL36RuleBtn.classList.remove('selected');
+        break;
+      case 'DL36':
+        PgoRuleBtn.classList.remove('selected');
+        noserveRuleBtn.classList.remove('selected');
+        DL36RuleBtn.classList.add('selected');
         break;
     }
   }
