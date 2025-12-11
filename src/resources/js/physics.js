@@ -389,7 +389,9 @@ function physicsEngine(player1, player2, ball, userInputArray, modeNum = 1) {
         // when the ball touches the other player
         if (+ball.isPlayer2Serve!=i && ball.isServeState) {
           ball.isServeState = false;
-          ball.canPowerhitBasedOnCollision = true;
+          if (modeNum == 2) {
+            ball.canPowerhitBasedOnCollision = true;
+          }
         }
         
         if (modeNum != 3 || !(ball.dribbleCounts[i] > 4)) {
@@ -402,7 +404,9 @@ function physicsEngine(player1, player2, ball, userInputArray, modeNum = 1) {
           );
           player.isCollisionWithBallHappened = true;
           if (ball.isServeState) {
-            ball.canPowerhitBasedOnCollision = false;
+            if (modeNum == 2) {
+              ball.canPowerhitBasedOnCollision = false;
+            }
           }
         }
       }
@@ -654,13 +658,20 @@ function processPlayerMovementAndSetPlayerPosition(
       player.state = 0;
     }
   }
+
+  if (modeNum === 3 && ((!player.isPlayer2 && ball.dribbleCounts[0] > 2) || (player.isPlayer2 && ball.dribbleCounts[1] > 2))) {
+    ball.canPowerhitBasedOnCollision = false;
+  } else {
+    ball.canPowerhitBasedOnCollision = true;
+  }
   
   if (userInput.powerHit === 1) {
     // In noserve mode and serve state, the only the opposite player can powerhit
     if (player.state === 1 && !(modeNum === 2 
       && !ball.canPowerhitBasedOnCollision 
-      && (player.isPlayer2 === ball.isPlayer2Serve)) 
-      && !(modeNum === 3 && (ball.dribbleCounts[0] > 2 || ball.dribbleCounts[1] > 2))) {
+      && (player.isPlayer2 === ball.isPlayer2Serve))
+      // if modeNum == 3 and
+      && (modeNum != 3 || ball.canPowerhitBasedOnCollision)) {
       // if player is jumping..
       // then player do power hit!
       // Fixed an issue where 2p would not be powerhit immediately when 1p powerhit the ball
