@@ -136,6 +136,10 @@ export class PikachuVolleyball {
       return;
     }
     if (this.slowMotionFramesLeft > 0) {
+      if (this.physics.modeNum == 3) {
+        this.dribbleCounts = [0,0];
+        this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
+      }
       this.slowMotionNumOfSkippedFrames++;
       if (
         this.slowMotionNumOfSkippedFrames %
@@ -146,6 +150,12 @@ export class PikachuVolleyball {
       }
       this.slowMotionFramesLeft--;
       this.slowMotionNumOfSkippedFrames = 0;
+    } else {
+      // Limited dribble rule
+      if (this.roundEnded == false && this.gameEnded == false && this.physics.modeNum == 3 && this.slowMotionFramesLeft == 0) {
+        this.dribbleCounts = this.physics.ball.dribbleCounts;
+        this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
+      }
     }
     // catch keyboard input and freeze it
     this.keyboardArray[0].getInput();
@@ -394,12 +404,6 @@ export class PikachuVolleyball {
       }
       return;
     }
-
-    // Limited dribble rule
-    if (this.roundEnded == false && this.gameEnded == false && this.physics.modeNum == 3) {
-      this.dribbleCounts = this.physics.ball.dribbleCounts;
-      this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
-    }
     
     // ended by down serve and not updated yet
     let didFoul = false; // did down serve after limit ended
@@ -435,7 +439,7 @@ export class PikachuVolleyball {
       this.roundEnded === false &&
       this.gameEnded === false
     ) {
-      if (this.isIdenticalServe && this.physics.ball.isServeState && this.physics.modeNum == 1) { // Did an identical serve and is still in a serve state, Modenum logic doesn't working(uzaramen)
+      if (this.isIdenticalServe && this.physics.ball.isServeState && this.physics.modeNum == 1 && this.slowMotionFramesLeft != 0) { // Did an identical serve and is still in a serve state, Modenum logic doesn't working(uzaramen)
         if (!this.physics.ball.isPlayer2Serve) {
           this.isPlayer2Serve = true;
           this.scores[0] = Math.max(this.scores[0] - 1, 0);
