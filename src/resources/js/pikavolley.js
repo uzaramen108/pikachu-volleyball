@@ -69,6 +69,8 @@ export class PikachuVolleyball {
     this.scores = [0, 0];
     /** @type {number[]} count for down serves [0] for player 1, [1] for player 2*/
     this.downServeCounts = [0, 0];
+    /** @type {number[]} count for dribble [0] for player 1, [1] for player 2*/
+    this.dribbleCounts = [0, 0];
     /** @type {number} limit of down serves */
     this.downServeLimit = 3;
     /** @type {number} score when the down serve gets banned */
@@ -134,6 +136,10 @@ export class PikachuVolleyball {
       return;
     }
     if (this.slowMotionFramesLeft > 0) {
+      if (this.physics.modeNum == 3) {
+        this.dribbleCounts = [0,0];
+        this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
+      }
       this.slowMotionNumOfSkippedFrames++;
       if (
         this.slowMotionNumOfSkippedFrames %
@@ -144,6 +150,12 @@ export class PikachuVolleyball {
       }
       this.slowMotionFramesLeft--;
       this.slowMotionNumOfSkippedFrames = 0;
+    } else {
+      // Limited dribble rule
+      if (this.roundEnded == false && this.gameEnded == false && this.physics.modeNum == 3 && this.slowMotionFramesLeft == 0) {
+        this.dribbleCounts = this.physics.ball.dribbleCounts;
+        this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
+      }
     }
     // catch keyboard input and freeze it
     this.keyboardArray[0].getInput();
@@ -313,7 +325,13 @@ export class PikachuVolleyball {
 
       this.downServeCounts[0] = this.downServeLimit;
       this.downServeCounts[1] = this.downServeLimit;
-      this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
+      if (this.physics.modeNum == 1) {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
+      } else if (this.physics.modeNum == 3) {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
+      } else {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
+      }
 
       this.currentServeRecord = [];
       this.previousServeRecord = [];
@@ -386,13 +404,14 @@ export class PikachuVolleyball {
       }
       return;
     }
-
+    
     // ended by down serve and not updated yet
     let didFoul = false; // did down serve after limit ended
+    
     if (this.physics.ball.endByDownServe && !this.physics.ball.updatedDownServe) {
       this.physics.ball.updatedDownServe = true;
       if (this.physics.ball.isPlayer2Serve) {
-        if (this.downServeCounts[1] > 0) {
+        if (this.downServeCounts[1] > 0 && this.physics.modeNum == 1) {
           this.downServeCounts[1] -= 1;
         }
         else {
@@ -401,7 +420,7 @@ export class PikachuVolleyball {
         }
       }
       else {
-        if (this.downServeCounts[0] > 0) {
+        if (this.downServeCounts[0] > 0 && this.physics.modeNum == 1) {
           this.downServeCounts[0] -= 1;
         }
         else {
@@ -409,7 +428,9 @@ export class PikachuVolleyball {
           didFoul = true;
         }
       }
-      this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
+      if (this.physics.modeNum == 1) {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
+      }
     }
 
     if (
@@ -418,7 +439,7 @@ export class PikachuVolleyball {
       this.roundEnded === false &&
       this.gameEnded === false
     ) {
-      if (this.isIdenticalServe && this.physics.ball.isServeState && this.physics.modeNum == 1) { // Did an identical serve and is still in a serve state, Modenum logic doesn't working(uzaramen)
+      if (this.isIdenticalServe && this.physics.ball.isServeState && this.physics.modeNum == 1 && this.slowMotionFramesLeft != 0) { // Did an identical serve and is still in a serve state, Modenum logic doesn't working(uzaramen)
         if (!this.physics.ball.isPlayer2Serve) {
           this.isPlayer2Serve = true;
           this.scores[0] = Math.max(this.scores[0] - 1, 0);
@@ -468,7 +489,9 @@ export class PikachuVolleyball {
       }
 
       this.view.game.drawScoresToScoreBoards(this.scores);
-      this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
+      if (this.physics.modeNum == 1) {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
+      }
       
       if (this.roundEnded === false && this.gameEnded === false) {
         this.slowMotionFramesLeft = this.SLOW_MOTION_FRAMES_NUM;
