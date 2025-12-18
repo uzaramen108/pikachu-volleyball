@@ -442,10 +442,7 @@ export class PikachuVolleyball {
       this.roundEnded === false &&
       this.gameEnded === false 
     ) {
-      if (this.isIdenticalServe 
-        && this.physics.ball.isServeState 
-        && this.slowMotionFramesLeft != 0 
-        && this.rule == 'Pgo') { // Did an identical serve and is still in a serve state, Modenum logic doesn't working(uzaramen)
+      if (this.isIdenticalServe && this.physics.ball.isServeState && this.physics.modeNum == 1) { // Did an identical serve and is still in a serve state, Modenum logic doesn't working(uzaramen)
         if (!this.physics.ball.isPlayer2Serve) {
           this.isPlayer2Serve = true;
           this.scores[0] = Math.max(this.scores[0] - 1, 0);

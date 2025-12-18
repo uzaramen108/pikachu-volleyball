@@ -123,11 +123,15 @@ export function setUpUI(pikaVolley, ticker) {
     switch (options.rule) {
       case 'Pgo':
         pikaVolley.physics.modeNum = 1;
+<<<<<<< HEAD
         pikaVolley.rule = 'Pgo';
+=======
+>>>>>>> d982769dedca71581bab73104d393c16fff93e7a
         pikaVolley.changeDownBoardVisibility(true);
         break;
       case 'noserve':
         pikaVolley.physics.modeNum = 2;
+<<<<<<< HEAD
         pikaVolley.rule = 'noserve';
         pikaVolley.changeDownBoardVisibility(false);
         break;
@@ -136,6 +140,10 @@ export function setUpUI(pikaVolley, ticker) {
         pikaVolley.rule = 'DL36';
         pikaVolley.changeDownBoardVisibility(true);
         break;
+=======
+        pikaVolley.changeDownBoardVisibility(false);
+        break;
+>>>>>>> d982769dedca71581bab73104d393c16fff93e7a
     }
   };
 
@@ -308,7 +316,10 @@ function setUpBtns(pikaVolley, applyAndSaveOptions) {
 
   const PgoRuleBtn = document.getElementById('Pgo-rule-btn');
   const noserveRuleBtn = document.getElementById('noserve-rule-btn');
+<<<<<<< HEAD
   const DL36RuleBtn = document.getElementById('Down-Limit-36-rule-btn');
+=======
+>>>>>>> d982769dedca71581bab73104d393c16fff93e7a
   const noticeBox3 = document.getElementById('notice-box-3');
   const noticeOKBtn3 = document.getElementById('notice-ok-btn-3');
   function isGameStarted() {
@@ -352,6 +363,7 @@ function setUpBtns(pikaVolley, applyAndSaveOptions) {
     }
     applyAndSaveOptions({ rule: 'noserve' });
   });
+<<<<<<< HEAD
   DL36RuleBtn.addEventListener('click', () => {
     if (DL36RuleBtn.classList.contains('selected')) {
       return;
@@ -369,6 +381,8 @@ function setUpBtns(pikaVolley, applyAndSaveOptions) {
     }
     applyAndSaveOptions({ rule: 'DL36' });
   });
+=======
+>>>>>>> d982769dedca71581bab73104d393c16fff93e7a
   noticeOKBtn3.addEventListener('click', () => {
     if (!noticeBox3.classList.contains('hidden')) {
       noticeBox3.classList.add('hidden');
@@ -681,22 +695,31 @@ function setSelectedOptionsBtn(options) {
   if (options.rule) {
     const PgoRuleBtn = document.getElementById('Pgo-rule-btn');
     const noserveRuleBtn = document.getElementById('noserve-rule-btn');
+<<<<<<< HEAD
     const DL36RuleBtn = document.getElementById('Down-Limit-36-rule-btn');
+=======
+>>>>>>> d982769dedca71581bab73104d393c16fff93e7a
     switch (options.rule) {
       case 'Pgo':
         PgoRuleBtn.classList.add('selected');
         noserveRuleBtn.classList.remove('selected');
+<<<<<<< HEAD
         DL36RuleBtn.classList.remove('selected');
+=======
+>>>>>>> d982769dedca71581bab73104d393c16fff93e7a
         break;
       case 'noserve':
         PgoRuleBtn.classList.remove('selected');
         noserveRuleBtn.classList.add('selected');
+<<<<<<< HEAD
         DL36RuleBtn.classList.remove('selected');
         break;
       case 'DL36':
         PgoRuleBtn.classList.remove('selected');
         noserveRuleBtn.classList.remove('selected');
         DL36RuleBtn.classList.add('selected');
+=======
+>>>>>>> d982769dedca71581bab73104d393c16fff93e7a
         break;
     }
   }
