@@ -73,6 +73,8 @@ export class PikachuVolleyball {
     this.dribbleCounts = [0, 0];
     /** @type {number} limit of down serves */
     this.downServeLimit = 3;
+    /** @type {number[]} limit of down serves */
+    this.dribbleReset = [0,0];
     /** @type {number} score when the down serve gets banned */
     this.serveLimitScore = 10;
     /** @type {number} winning score: if either one of the players reaches this score, game ends */
@@ -328,9 +330,7 @@ export class PikachuVolleyball {
       if (this.physics.modeNum == 1) {
         this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
       } else if (this.physics.modeNum == 3) {
-        this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
-      } else {
-        this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
+        this.view.game.drawDownServeCountsToDownServeBoards(this.physics.ball.dribbleCounts);
       }
 
       this.currentServeRecord = [];
@@ -383,7 +383,13 @@ export class PikachuVolleyball {
     const isBallTouchingGround = this.physics.runEngineForNextFrame(
       this.keyboardArray
     );
-
+    if (this.physics.modeNum == 3) {
+      if (this.roundEnded) {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleReset);
+      } else {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.physics.ball.dribbleCounts);
+      }
+    }
     if (this.roundEnded === false && this.physics.ball.isServeState) // Record serve path only at a ServeState and round isn't ended
       this.currentServeRecord.push([this.physics.ball.x, this.physics.ball.y]);
 
@@ -415,7 +421,7 @@ export class PikachuVolleyball {
           this.downServeCounts[1] -= 1;
         }
         else {
-          // down serve limit ended
+          // down serve limit ended.
           didFoul = true;
         }
       }
@@ -447,8 +453,7 @@ export class PikachuVolleyball {
           this.isPlayer2Serve = false;
           this.scores[1] = Math.max(this.scores[1] - 1, 0);
         }
-      }
-      else if (didFoul || this.physics.ball.endByThunder == true) { // if the game ended by foul (down serve limit ended or Thunder serve)
+      } else if ((didFoul || this.physics.ball.endByThunder == true) && (this.physics.modeNum == 1 || this.physics.modeNum == 3)) { // if the game ended by foul (down serve limit ended or Thunder serve)
         if (this.physics.ball.isPlayer2Serve) {
           this.isPlayer2Serve = false;
           this.scores[0] += 1;
