@@ -69,8 +69,6 @@ export class PikachuVolleyball {
     this.scores = [0, 0];
     /** @type {number[]} count for down serves [0] for player 1, [1] for player 2*/
     this.downServeCounts = [0, 0];
-    /** @type {number[]} count for dribble [0] for player 1, [1] for player 2*/
-    this.dribbleCounts = [0, 0];
     /** @type {number} limit of down serves */
     this.downServeLimit = 3;
     /** @type {number} score when the down serve gets banned */
@@ -120,9 +118,6 @@ export class PikachuVolleyball {
     /** @type {boolean} true: practice mode on, false: practice mode off */
     this._isPracticeMode = false;
 
-    /** @type {string} Pgo/noserve/DL36 */
-    this.rule = "Pgo";
-    
     /**
      * The game state which is being rendered now
      * @type {GameState}
@@ -139,11 +134,10 @@ export class PikachuVolleyball {
       return;
     }
     if (this.slowMotionFramesLeft > 0) {
-      this.dribbleCounts = [0,0];
-      if (this.rule == 'DL36') {
-        this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
-      }
       this.slowMotionNumOfSkippedFrames++;
+      if (this.physics.modeNum == 3) {
+        this.view.game.drawDownServeCountsToDownServeBoards([0,0]);
+      }
       if (
         this.slowMotionNumOfSkippedFrames %
         Math.round(this.normalFPS / this.slowMotionFPS) !==
@@ -154,10 +148,8 @@ export class PikachuVolleyball {
       this.slowMotionFramesLeft--;
       this.slowMotionNumOfSkippedFrames = 0;
     } else {
-      this.dribbleCounts = this.physics.ball.dribbleCounts;
-      // Limited dribble rule
-      if (this.roundEnded == false && this.gameEnded == false && this.rule == 'DL36' && this.slowMotionFramesLeft == 0) {
-        this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
+      if (this.physics.modeNum == 3) {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.physics.ball.dribbleCounts);
       }
     }
     // catch keyboard input and freeze it
@@ -328,11 +320,7 @@ export class PikachuVolleyball {
 
       this.downServeCounts[0] = this.downServeLimit;
       this.downServeCounts[1] = this.downServeLimit;
-      if (this.rule == 'Pgo') {
-        this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
-      } else if (this.rule == 'DL36') {
-        this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
-      } else {
+      if (this.physics.modeNum == 1) {
         this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
       }
 
@@ -407,23 +395,22 @@ export class PikachuVolleyball {
       }
       return;
     }
-    
+
     // ended by down serve and not updated yet
     let didFoul = false; // did down serve after limit ended
-    
     if (this.physics.ball.endByDownServe && !this.physics.ball.updatedDownServe) {
       this.physics.ball.updatedDownServe = true;
       if (this.physics.ball.isPlayer2Serve) {
-        if (this.downServeCounts[1] > 0) {
+        if (this.downServeCounts[1] > 0 && this.physics.modeNum == 1) {
           this.downServeCounts[1] -= 1;
         }
         else {
-          // down serve limit ended
+          // down serve limit ended.
           didFoul = true;
         }
       }
       else {
-        if (this.downServeCounts[0] > 0) {
+        if (this.downServeCounts[0] > 0 && this.physics.modeNum == 1) {
           this.downServeCounts[0] -= 1;
         }
         else {
@@ -431,7 +418,7 @@ export class PikachuVolleyball {
           didFoul = true;
         }
       }
-      if (this.rule == 'Pgo') {
+      if (this.physics.modeNum == 1) {
         this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
       }
     }
@@ -440,7 +427,7 @@ export class PikachuVolleyball {
       (isBallTouchingGround || didFoul) &&
       this._isPracticeMode === false &&
       this.roundEnded === false &&
-      this.gameEnded === false 
+      this.gameEnded === false
     ) {
       if (this.isIdenticalServe && this.physics.ball.isServeState && this.physics.modeNum == 1) { // Did an identical serve and is still in a serve state, Modenum logic doesn't working(uzaramen)
         if (!this.physics.ball.isPlayer2Serve) {
@@ -450,8 +437,7 @@ export class PikachuVolleyball {
           this.isPlayer2Serve = false;
           this.scores[1] = Math.max(this.scores[1] - 1, 0);
         }
-      }
-      else if (didFoul || this.physics.ball.endByThunder == true) { // if the game ended by foul (down serve limit ended or Thunder serve)
+      } else if ((didFoul || this.physics.ball.endByThunder == true) && (this.physics.modeNum == 1 || this.physics.modeNum == 3)) { // if the game ended by foul (down serve limit ended or Thunder serve)
         if (this.physics.ball.isPlayer2Serve) {
           this.isPlayer2Serve = false;
           this.scores[0] += 1;
@@ -492,6 +478,9 @@ export class PikachuVolleyball {
       }
 
       this.view.game.drawScoresToScoreBoards(this.scores);
+      if (this.physics.modeNum == 1) {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
+      }
       
       if (this.roundEnded === false && this.gameEnded === false) {
         this.slowMotionFramesLeft = this.SLOW_MOTION_FRAMES_NUM;
@@ -499,9 +488,6 @@ export class PikachuVolleyball {
       this.previousServeRecord = this.currentServeRecord;
       this.currentServeRecord = [];
       this.roundEnded = true;
-      if (this.rule == 'Pgo') {
-        this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
-      }
     }
 
     if (this.roundEnded === true && this.gameEnded === false) {
