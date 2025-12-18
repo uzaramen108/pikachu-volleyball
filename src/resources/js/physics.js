@@ -544,10 +544,6 @@ function processCollisionBetweenBallAndWorldAndSetBallPosition(ball) {
       ball.endByThunder = true; // If ended by thunder, the opposite player wins
     }
 
-    if (ball.y < MaximumYForThunder && ball.yVelocity > MinimumSpeedForThunder && ball.isServeState == true) {
-      ball.endByThunder = true; // If ended by thunder, the opposite player wins
-    }
-
     ball.yVelocity = -ball.yVelocity;
     ball.punchEffectX = ball.x;
     ball.y = BALL_TOUCHING_GROUND_Y_COORD;
