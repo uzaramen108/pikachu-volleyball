@@ -123,14 +123,17 @@ export function setUpUI(pikaVolley, ticker) {
     switch (options.rule) {
       case 'Pgo':
         pikaVolley.physics.modeNum = 1;
+        pikaVolley.rule = 'Pgo';
         pikaVolley.changeDownBoardVisibility(true);
         break;
       case 'noserve':
         pikaVolley.physics.modeNum = 2;
+        pikaVolley.rule = 'noserve';
         pikaVolley.changeDownBoardVisibility(false);
         break;
       case 'DL36':
         pikaVolley.physics.modeNum = 3;
+        pikaVolley.rule = 'DL36';
         pikaVolley.changeDownBoardVisibility(true);
         break;
     }

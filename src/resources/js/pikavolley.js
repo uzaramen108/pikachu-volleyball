@@ -120,6 +120,9 @@ export class PikachuVolleyball {
     /** @type {boolean} true: practice mode on, false: practice mode off */
     this._isPracticeMode = false;
 
+    /** @type {string} Pgo/noserve/DL36 */
+    this.rule = "Pgo";
+    
     /**
      * The game state which is being rendered now
      * @type {GameState}
@@ -136,8 +139,8 @@ export class PikachuVolleyball {
       return;
     }
     if (this.slowMotionFramesLeft > 0) {
-      if (this.physics.modeNum == 3) {
-        this.dribbleCounts = [0,0];
+      this.dribbleCounts = [0,0];
+      if (this.rule == 'DL36') {
         this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
       }
       this.slowMotionNumOfSkippedFrames++;
@@ -151,9 +154,9 @@ export class PikachuVolleyball {
       this.slowMotionFramesLeft--;
       this.slowMotionNumOfSkippedFrames = 0;
     } else {
+      this.dribbleCounts = this.physics.ball.dribbleCounts;
       // Limited dribble rule
-      if (this.roundEnded == false && this.gameEnded == false && this.physics.modeNum == 3 && this.slowMotionFramesLeft == 0) {
-        this.dribbleCounts = this.physics.ball.dribbleCounts;
+      if (this.roundEnded == false && this.gameEnded == false && this.rule == 'DL36' && this.slowMotionFramesLeft == 0) {
         this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
       }
     }
@@ -325,9 +328,9 @@ export class PikachuVolleyball {
 
       this.downServeCounts[0] = this.downServeLimit;
       this.downServeCounts[1] = this.downServeLimit;
-      if (this.physics.modeNum == 1) {
+      if (this.rule == 'Pgo') {
         this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
-      } else if (this.physics.modeNum == 3) {
+      } else if (this.rule == 'DL36') {
         this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleCounts);
       } else {
         this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
@@ -411,7 +414,7 @@ export class PikachuVolleyball {
     if (this.physics.ball.endByDownServe && !this.physics.ball.updatedDownServe) {
       this.physics.ball.updatedDownServe = true;
       if (this.physics.ball.isPlayer2Serve) {
-        if (this.downServeCounts[1] > 0 && this.physics.modeNum == 1) {
+        if (this.downServeCounts[1] > 0) {
           this.downServeCounts[1] -= 1;
         }
         else {
@@ -420,7 +423,7 @@ export class PikachuVolleyball {
         }
       }
       else {
-        if (this.downServeCounts[0] > 0 && this.physics.modeNum == 1) {
+        if (this.downServeCounts[0] > 0) {
           this.downServeCounts[0] -= 1;
         }
         else {
@@ -428,7 +431,7 @@ export class PikachuVolleyball {
           didFoul = true;
         }
       }
-      if (this.physics.modeNum == 1) {
+      if (this.rule == 'Pgo') {
         this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
       }
     }
@@ -437,9 +440,12 @@ export class PikachuVolleyball {
       (isBallTouchingGround || didFoul) &&
       this._isPracticeMode === false &&
       this.roundEnded === false &&
-      this.gameEnded === false
+      this.gameEnded === false 
     ) {
-      if (this.isIdenticalServe && this.physics.ball.isServeState && this.physics.modeNum == 1 && this.slowMotionFramesLeft != 0) { // Did an identical serve and is still in a serve state, Modenum logic doesn't working(uzaramen)
+      if (this.isIdenticalServe 
+        && this.physics.ball.isServeState 
+        && this.slowMotionFramesLeft != 0 
+        && this.rule == 'Pgo') { // Did an identical serve and is still in a serve state, Modenum logic doesn't working(uzaramen)
         if (!this.physics.ball.isPlayer2Serve) {
           this.isPlayer2Serve = true;
           this.scores[0] = Math.max(this.scores[0] - 1, 0);
@@ -489,9 +495,6 @@ export class PikachuVolleyball {
       }
 
       this.view.game.drawScoresToScoreBoards(this.scores);
-      if (this.physics.modeNum == 1) {
-        this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
-      }
       
       if (this.roundEnded === false && this.gameEnded === false) {
         this.slowMotionFramesLeft = this.SLOW_MOTION_FRAMES_NUM;
@@ -499,6 +502,9 @@ export class PikachuVolleyball {
       this.previousServeRecord = this.currentServeRecord;
       this.currentServeRecord = [];
       this.roundEnded = true;
+      if (this.rule == 'Pgo') {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
+      }
     }
 
     if (this.roundEnded === true && this.gameEnded === false) {
