@@ -71,6 +71,8 @@ export class PikachuVolleyball {
     this.downServeCounts = [0, 0];
     /** @type {number} limit of down serves */
     this.downServeLimit = 3;
+    /** @type {number[]} limit of down serves */
+    this.dribbleReset = [0,0];
     /** @type {number} score when the down serve gets banned */
     this.serveLimitScore = 10;
     /** @type {number} winning score: if either one of the players reaches this score, game ends */
@@ -135,9 +137,6 @@ export class PikachuVolleyball {
     }
     if (this.slowMotionFramesLeft > 0) {
       this.slowMotionNumOfSkippedFrames++;
-      if (this.physics.modeNum == 3) {
-        this.view.game.drawDownServeCountsToDownServeBoards([0,0]);
-      }
       if (
         this.slowMotionNumOfSkippedFrames %
         Math.round(this.normalFPS / this.slowMotionFPS) !==
@@ -147,10 +146,6 @@ export class PikachuVolleyball {
       }
       this.slowMotionFramesLeft--;
       this.slowMotionNumOfSkippedFrames = 0;
-    } else {
-      if (this.physics.modeNum == 3) {
-        this.view.game.drawDownServeCountsToDownServeBoards(this.physics.ball.dribbleCounts);
-      }
     }
     // catch keyboard input and freeze it
     this.keyboardArray[0].getInput();
@@ -322,6 +317,8 @@ export class PikachuVolleyball {
       this.downServeCounts[1] = this.downServeLimit;
       if (this.physics.modeNum == 1) {
         this.view.game.drawDownServeCountsToDownServeBoards(this.downServeCounts);
+      } else if (this.physics.modeNum == 3) {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.physics.ball.dribbleCounts);
       }
 
       this.currentServeRecord = [];
@@ -374,7 +371,13 @@ export class PikachuVolleyball {
     const isBallTouchingGround = this.physics.runEngineForNextFrame(
       this.keyboardArray
     );
-
+    if (this.physics.modeNum == 3) {
+      if (this.roundEnded) {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.dribbleReset);
+      } else {
+        this.view.game.drawDownServeCountsToDownServeBoards(this.physics.ball.dribbleCounts);
+      }
+    }
     if (this.roundEnded === false && this.physics.ball.isServeState) // Record serve path only at a ServeState and round isn't ended
       this.currentServeRecord.push([this.physics.ball.x, this.physics.ball.y]);
 
